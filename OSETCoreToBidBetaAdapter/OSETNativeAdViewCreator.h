@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithExpressAd:(OSETNativeAd *)nativeAd adView:(OSETBaseView *)adView;
 - (instancetype)initWithNativeDataAdAd:(OSETNativeDataAd *)nativeDataAd adData:(OSETNativeDataAdObject *)adData;
-
+-(void)unregisterDataObject;
 @end
 
 NS_ASSUME_NONNULL_END

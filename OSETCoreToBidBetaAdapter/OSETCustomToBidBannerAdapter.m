@@ -69,7 +69,7 @@
     }
     NSString *price = [NSString stringWithFormat:@"%ld",(long)view.eCPM];
     [self.bridge bannerAd:self didAdServerResponse:view ext:@{
-        AWMMediaAdLoadingExtECPM: price
+        WindMillConstant.ECPM : price
     }];
     WindmillLogDebug(@"OSET", @"%s", __func__);
     self.isReady = YES;

@@ -71,15 +71,12 @@
     OSETNativeDataAdObject * adData = nativeDataObjects.firstObject;
     NSString *price = [NSString stringWithFormat:@"%ld",(long)adData.eCPM];
     [self.bridge nativeAd:self didAdServerResponseWithExt:@{
-        AWMMediaAdLoadingExtECPM: price
+        WindMillConstant.ECPM : price
     }];
     NSMutableArray *adArray = [[NSMutableArray alloc] init];
-    AWMMediatedNativeAd *mNativeAd = [[AWMMediatedNativeAd alloc] init];
-    mNativeAd.originMediatedNativeAd = adData;
-    mNativeAd.data = [[OSETCustomToBidNativeAdData alloc]initWithAd:adData];
     OSETNativeAdViewCreator * creator = [[OSETNativeAdViewCreator alloc] initWithNativeDataAdAd:self.nativeDataAd adData:adData];
+    AWMMediatedNativeAd *mNativeAd = [[AWMMediatedNativeAd alloc] initWithData:[[OSETCustomToBidNativeAdData alloc]initWithAd:adData] viewCreator:creator originAd:adData];
     creator.delegate = self;
-    mNativeAd.viewCreator = creator;
     [adArray addObject:mNativeAd];
     [self.bridge nativeAd:self didLoadWithNativeAds:adArray];
 }
@@ -96,13 +93,11 @@
     OSETBaseView *adView = nativeExpressViews.firstObject;
     NSString *price = [NSString stringWithFormat:@"%ld",(long)adView.eCPM];
     [self.bridge nativeAd:self didAdServerResponseWithExt:@{
-        AWMMediaAdLoadingExtECPM: price
+        WindMillConstant.ECPM : price
     }];
     NSMutableArray *adArray = [[NSMutableArray alloc] init];
     self.nativeAd.delegate = self;
-    AWMMediatedNativeAd *mNativeAd = [[AWMMediatedNativeAd alloc] init];
-    mNativeAd.originMediatedNativeAd = adView;
-    mNativeAd.viewCreator = [[OSETNativeAdViewCreator alloc] initWithExpressAd:self.nativeAd adView:adView];
+    AWMMediatedNativeAd *mNativeAd = [[AWMMediatedNativeAd alloc] initWithData:nil viewCreator: [[OSETNativeAdViewCreator alloc] initWithExpressAd:self.nativeAd adView:adView] originAd:adView];
     mNativeAd.view = adView;
     [adArray addObject:mNativeAd];
     [self.bridge nativeAd:self didLoadWithNativeAds:adArray];

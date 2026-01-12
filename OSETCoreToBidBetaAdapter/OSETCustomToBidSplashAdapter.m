@@ -36,7 +36,7 @@
 }
 - (void)showSplashAdInWindow:(UIWindow *)window parameter:(AWMParameter *)parameter {
     WindmillLogDebug(@"OSET", @"%@", NSStringFromSelector(_cmd));
-    UIView *bottomView = [parameter.extra objectForKey:AWMAdLoadingParamSPCustomBottomView];
+    UIView *bottomView = [parameter.extra objectForKey: WindMillConstant.BottomView];
     self.splashAd.bottomView = bottomView;
     if(window){
         self.splashAd.window = window;
@@ -69,7 +69,7 @@
     NSString *price = [NSString stringWithFormat:@"%ld",(long)self.splashAd.eCPM];
     WindmillLogDebug(@"OSET", @"%@", NSStringFromSelector(_cmd));
     [self.bridge splashAd:self didAdServerResponseWithExt:@{
-        AWMMediaAdLoadingExtECPM: price
+        WindMillConstant.ECPM : price
     }];
     self.isReady = YES;
     [self.bridge splashAdDidLoad:self];

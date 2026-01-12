@@ -67,7 +67,7 @@
     WindmillLogDebug(@"OSET", @"%@", NSStringFromSelector(_cmd));
     NSString *price = [NSString stringWithFormat:@"%ld",(long)self.interstitialAd.eCPM];
     [self.bridge interstitialAd:self didAdServerResponseWithExt:@{
-        AWMMediaAdLoadingExtECPM: price
+        WindMillConstant.ECPM : price
     }];
     [self.bridge interstitialAdDidLoad:self];
 }

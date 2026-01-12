@@ -22,7 +22,7 @@
 @synthesize imageView = _imageView;
 @synthesize imageViewArray = _imageViewArray;
 @synthesize mediaView = _mediaView;
-@synthesize interactiveView = _interactiveView;
+//@synthesize interactiveView = _interactiveView;
 
 - (instancetype)initWithExpressAd:(OSETNativeAd *)nativeAd adView:(OSETBaseView *)adView{
     self = [super init];
@@ -42,6 +42,9 @@
         _expressDataAdRender = expressDataAdRenderer;
     }
     return self;
+}
+-(void)unregisterDataObject{
+    [self.expressDataAdRender unregisterDataObject];
 }
 - (void)setRootViewController:(UIViewController *)viewController {
     if(self.expressAd){

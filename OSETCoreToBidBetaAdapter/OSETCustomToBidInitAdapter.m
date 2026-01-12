@@ -23,7 +23,7 @@
     return self;
 }
 - (AWMCustomAdapterVersion *)basedOnCustomAdapterVersion {
-    return AWMCustomAdapterVersion1_0;
+    return  [AWMCustomAdapterVersion V2_0];
 }
 - (NSString *)adapterVersion {
     return @"2.0.0";
