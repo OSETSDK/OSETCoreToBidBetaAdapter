@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "OSETCoreToBidBetaAdapter"
-  s.version      = "6.6.2.2"
+  s.version      = "6.6.2.3"
   s.summary      = "AdSet广告对接Tobid适配器"
   s.description  = <<-DESC
                     OSETSDK 是一个专业的广告聚合SDK，提供高效的广告展示和收益优化功能。
@@ -31,5 +31,5 @@ Pod::Spec.new do |s|
   # ================= 第三方依赖库 =================
  
   s.dependency 'OSETCoreSDK','>=6.6.2.0'
-  s.dependency 'ToBid-i0S-Beta'
+  s.dependency 'ToBid-iOS-Beta'
 end
