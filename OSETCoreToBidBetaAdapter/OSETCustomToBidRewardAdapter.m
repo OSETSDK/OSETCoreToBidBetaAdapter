@@ -109,8 +109,7 @@
 //激励视频奖励 //checkString 将在OSETRewardVideoAd对象 loadAdData 后失效
 - (void)rewardVideoOnReward:(id)rewardVideoAd checkString:(NSString *)checkString{
     WindmillLogDebug(@"OSET", @"%@", NSStringFromSelector(_cmd));
-    WindMillRewardInfo *info = [[WindMillRewardInfo alloc] initWithIsCompeltedView:NO];
-    info.isCompeltedView = YES;
+    WindMillRewardInfo *info = [[WindMillRewardInfo alloc] initWithIsCompeltedView:YES];
     [self.bridge rewardedVideoAd:self didRewardSuccessWithInfo:info];
 }
 
