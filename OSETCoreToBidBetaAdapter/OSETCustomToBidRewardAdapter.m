@@ -67,7 +67,7 @@
 
 - (void)rewardVideoDidReceiveSuccess:(nonnull id)rewardVideoAd slotId:(nonnull NSString *)slotId {
     WindmillLogDebug(@"OSET", @"%@", NSStringFromSelector(_cmd));
-    NSString *price = [NSString stringWithFormat:@"%ld",(long)self.rewardAd.eCPM + 10000];
+    NSString *price = [NSString stringWithFormat:@"%ld",(long)self.rewardAd.eCPM];
     [self.bridge rewardedVideoAd:self didAdServerResponseWithExt:@{
         WindMillConstant.ECPM : price
     }];
