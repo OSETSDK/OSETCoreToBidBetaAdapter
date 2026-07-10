@@ -59,7 +59,11 @@
 }
 - (NSString *)callToAction {
     if (!_callToAction) {
-        _callToAction = self.ad.buttonText;
+        if(self.ad.buttonText && self.ad.buttonText.length > 0){
+            _callToAction = self.ad.buttonText;
+        }else{
+            _callToAction = @"查看详情";
+        }
     }
     return _callToAction;
 }
