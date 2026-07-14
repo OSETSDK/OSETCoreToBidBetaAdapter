@@ -29,10 +29,9 @@
 }
 - (void)loadAdWithPlacementId:(NSString *)placementId parameter:(AWMParameter *)parameter {
     self.parameter = parameter;
-    self.splashAd = [[OSETSplashAd alloc] initWithSlotId:parameter.placementId window:nil bottomView:nil];
+    self.splashAd = [[OSETSplashAd alloc] initWithSlotId:parameter.placementId window:nil bottomView:parameter.extra[WindMillConstant.BottomView]];
     self.splashAd.delegate = self;
     [self.splashAd loadSplashAd];
-
 }
 - (void)showSplashAdInWindow:(UIWindow *)window parameter:(AWMParameter *)parameter {
     WindmillLogDebug(@"OSET", @"%@", NSStringFromSelector(_cmd));
