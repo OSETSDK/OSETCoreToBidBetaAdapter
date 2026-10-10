@@ -10,11 +10,13 @@
 #import <WindFoundation/WindFoundation.h>
 #import "OSETCustomToBidNativeAdData.h"
 #import <OSETSDK/OSETSDK.h>
+#import "OSETToBidBiddingHelper.h"
 @interface OSETCustomToBidNativeAdapter ()<OSETNativeAdDelegate,OSETNativeDataAdDelegate,OSETNativeAdViewCreatorDelegate>
 @property (nonatomic, weak) id<AWMCustomNativeAdapterBridge> bridge;
-@property (nonatomic,strong) OSETNativeAd *nativeAd;
-@property (nonatomic,strong) OSETNativeDataAd *nativeDataAd;
-@property (nonatomic, strong) NSArray<OSETNativeAd *> *nativeAdDataArray;
+@property (atomic,strong) OSETNativeAd *nativeAd;
+@property (atomic,strong) OSETNativeDataAd *nativeDataAd;
+@property (atomic, strong) id biddingAd;
+@property (nonatomic, assign) BOOL isExpressAd;
 
 @end
 
@@ -28,8 +30,10 @@
 }
 
 - (void)loadAdWithPlacementId:(NSString *)placementId adSize:(CGSize)size parameter:(AWMParameter *)parameter {
+    self.biddingAd = nil;
+    self.isExpressAd = [parameter.customInfo[@"isExpressAd"] boolValue];
     // 获取特定键的值
-    if([parameter.customInfo[@"isExpressAd"] boolValue] == YES){
+    if (self.isExpressAd) {
         if(!self.nativeAd){
             self.nativeAd = [[OSETNativeAd alloc] initWithSlotId:placementId size:size rootViewController:nil];
             self.nativeAd.delegate = self;
@@ -56,25 +60,42 @@
 }
 
 - (void)didReceiveBidResult:(AWMMediaBidResult *)result {
-    if (result.win) {
-        WindmillLogDebug(@"OSET-WindWill-竞价成功", @"%@", NSStringFromSelector(_cmd));
-    }else{
-        WindmillLogDebug(@"OSET-WindWill-竞价失败", @"%@", NSStringFromSelector(_cmd));
-    }
-    self.nativeAdDataArray = nil;
+    OSETToBidReportBidResult(self.biddingAd, result);
 }
 
+
+- (void)destory {
+    self.nativeAd.delegate = nil;
+    self.nativeDataAd.delegate = nil;
+    self.nativeAd = nil;
+    self.nativeDataAd = nil;
+    self.biddingAd = nil;
+}
 
 /// 信息流加载成功
 - (void)nativeDataAdLoadSuccessWithNative:(id)nativeDataAd nativeDataObjects:(NSArray<OSETNativeDataAdObject *> * _Nullable)nativeDataObjects{
     WindmillLogDebug(@"OSET", @"%@", NSStringFromSelector(_cmd));
-    OSETNativeDataAdObject * adData = nativeDataObjects.firstObject;
+    OSETNativeDataAd *loadedAd = self.nativeDataAd;
+    if (self.isExpressAd || nativeDataAd != loadedAd || !loadedAd) {
+        return;
+    }
+    OSETNativeDataAdObject *adData = [nativeDataObjects isKindOfClass:[NSArray class]]
+        ? nativeDataObjects.firstObject : nil;
+    if (![adData isKindOfClass:[OSETNativeDataAdObject class]]) {
+        [self.bridge nativeAd:self didLoadFailWithError:[NSError errorWithDomain:@"OSETToBidAdapter"
+            code:-1 userInfo:@{NSLocalizedDescriptionKey: @"OSET 自渲染信息流返回空广告"}]];
+        return;
+    }
+    self.biddingAd = loadedAd;
     NSString *price = [NSString stringWithFormat:@"%ld",(long)adData.eCPM];
     [self.bridge nativeAd:self didAdServerResponseWithExt:@{
         WindMillConstant.ECPM : price
     }];
+    if (self.biddingAd != loadedAd) {
+        return;
+    }
     NSMutableArray *adArray = [[NSMutableArray alloc] init];
-    OSETNativeAdViewCreator * creator = [[OSETNativeAdViewCreator alloc] initWithNativeDataAdAd:self.nativeDataAd adData:adData];
+    OSETNativeAdViewCreator * creator = [[OSETNativeAdViewCreator alloc] initWithNativeDataAdAd:loadedAd adData:adData];
     AWMMediatedNativeAd *mNativeAd = [[AWMMediatedNativeAd alloc] initWithData:[[OSETCustomToBidNativeAdData alloc]initWithAd:adData] viewCreator:creator originAd:adData];
     creator.delegate = self;
     [adArray addObject:mNativeAd];
@@ -90,14 +111,29 @@
 
 - (void)nativeExpressAdLoadSuccessWithNative:(id)native nativeExpressViews:(NSArray *)nativeExpressViews{
     WindmillLogDebug(@"OSET", @"%@", NSStringFromSelector(_cmd));
-    OSETBaseView *adView = nativeExpressViews.firstObject;
+    OSETNativeAd *loadedAd = self.nativeAd;
+    if (!self.isExpressAd || native != loadedAd || !loadedAd) {
+        return;
+    }
+    OSETBaseView *adView = [nativeExpressViews isKindOfClass:[NSArray class]]
+        ? nativeExpressViews.firstObject : nil;
+    if (![adView isKindOfClass:[OSETBaseView class]]) {
+        [self.bridge nativeAd:self didLoadFailWithError:[NSError errorWithDomain:@"OSETToBidAdapter"
+            code:-1 userInfo:@{NSLocalizedDescriptionKey: @"OSET 模板信息流返回空广告或无效 View"}]];
+        return;
+    }
+    // bridge 可能同步触发竞价结果，先保存当前广告 View。
+    self.biddingAd = adView;
     NSString *price = [NSString stringWithFormat:@"%ld",(long)adView.eCPM];
     [self.bridge nativeAd:self didAdServerResponseWithExt:@{
         WindMillConstant.ECPM : price
     }];
+    if (self.biddingAd != adView) {
+        return;
+    }
     NSMutableArray *adArray = [[NSMutableArray alloc] init];
-    self.nativeAd.delegate = self;
-    AWMMediatedNativeAd *mNativeAd = [[AWMMediatedNativeAd alloc] initWithData:nil viewCreator: [[OSETNativeAdViewCreator alloc] initWithExpressAd:self.nativeAd adView:adView] originAd:adView];
+    loadedAd.delegate = self;
+    AWMMediatedNativeAd *mNativeAd = [[AWMMediatedNativeAd alloc] initWithData:nil viewCreator: [[OSETNativeAdViewCreator alloc] initWithExpressAd:loadedAd adView:adView] originAd:adView];
     mNativeAd.view = adView;
     [adArray addObject:mNativeAd];
     [self.bridge nativeAd:self didLoadWithNativeAds:adArray];

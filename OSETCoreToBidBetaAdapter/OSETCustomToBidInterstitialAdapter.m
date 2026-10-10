@@ -8,10 +8,11 @@
 #import "OSETCustomToBidInterstitialAdapter.h"
 #import <WindFoundation/WindFoundation.h>
 #import <OSETSDK/OSETSDK.h>
+#import "OSETToBidBiddingHelper.h"
 
 @interface OSETCustomToBidInterstitialAdapter ()<OSETInterstitialAdDelegate>
 @property (nonatomic, weak) id<AWMCustomInterstitialAdapterBridge> bridge;
-@property (nonatomic, strong) OSETInterstitialAd *interstitialAd;
+@property (atomic, strong) OSETInterstitialAd *interstitialAd;
 @property (nonatomic, strong) AWMParameter *parameter;
 @property (nonatomic, assign) BOOL isReady;
 @end
@@ -32,11 +33,7 @@
 }
 
 - (void)didReceiveBidResult:(AWMMediaBidResult *)result {
-    if (result.win) {
-        WindmillLogDebug(@"OSET-WindWill-竞价成功", @"%@", NSStringFromSelector(_cmd));
-    }else{
-        WindmillLogDebug(@"OSET-WindWill-竞价失败", @"%@", NSStringFromSelector(_cmd));
-    }
+    OSETToBidReportBidResult(self.interstitialAd, result);
 }
 - (void)destory {
     [self removeInterstitialAd];

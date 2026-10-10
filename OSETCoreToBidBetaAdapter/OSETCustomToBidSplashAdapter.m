@@ -8,10 +8,11 @@
 #import "OSETCustomToBidSplashAdapter.h"
 #import <WindFoundation/WindFoundation.h>
 #import <OSETSDK/OSETSDK.h>
+#import "OSETToBidBiddingHelper.h"
 
 @interface OSETCustomToBidSplashAdapter ()<OSETSplashAdDelegate>
 @property (nonatomic, weak) id<AWMCustomSplashAdapterBridge> bridge;
-@property (nonatomic, strong) OSETSplashAd *splashAd;
+@property (atomic, strong) OSETSplashAd *splashAd;
 @property (nonatomic, strong) AWMParameter *parameter;
 @property (nonatomic, assign) BOOL isReady;
 @end
@@ -28,6 +29,7 @@
     return self.isReady;
 }
 - (void)loadAdWithPlacementId:(NSString *)placementId parameter:(AWMParameter *)parameter {
+    self.isReady = NO;
     self.parameter = parameter;
     self.splashAd = [[OSETSplashAd alloc] initWithSlotId:parameter.placementId window:nil bottomView:parameter.extra[WindMillConstant.BottomView]];
     self.splashAd.delegate = self;
@@ -47,19 +49,14 @@
 
 }
 - (void)didReceiveBidResult:(AWMMediaBidResult *)result {
-    if (result.win) {
-//        [self.splashAd setPrice:@(result.winnerPrice)];
-//        [self.splashAd win:@(result.winnerPrice)];
-        WindmillLogDebug(@"OSET竞价成功", @"%@", NSStringFromSelector(_cmd));
-    }else{
-        WindmillLogDebug(@"OSET竞价失败", @"%@", NSStringFromSelector(_cmd));
-    }
+    OSETToBidReportBidResult(self.splashAd, result);
 }
 - (void)destory {
     [self removeSplashAdView];
 }
 - (void)removeSplashAdView {
-    [self.splashAd description];
+    self.isReady = NO;
+    self.splashAd.delegate = nil;
     self.splashAd = nil;
 }
 #pragma mark - OSETSplashAdDelegate

@@ -8,9 +8,10 @@
 #import "OSETCustomToBidRewardAdapter.h"
 #import <WindFoundation/WindFoundation.h>
 #import <OSETSDK/OSETSDK.h>
+#import "OSETToBidBiddingHelper.h"
 @interface OSETCustomToBidRewardAdapter ()<OSETRewardVideoAdDelegate>
 @property (nonatomic, weak) id<AWMCustomRewardedVideoAdapterBridge> bridge;
-@property (nonatomic, strong) OSETRewardVideoAd *rewardAd;
+@property (atomic, strong) OSETRewardVideoAd *rewardAd;
 @property (nonatomic, strong) AWMParameter *parameter;
 @property (nonatomic, assign) BOOL isReady;
 @end
@@ -51,11 +52,7 @@
 }
 
 - (void)didReceiveBidResult:(AWMMediaBidResult *)result {
-    if (result.win) {
-        WindmillLogDebug(@"OSET-WindWill-竞价成功", @"%@", NSStringFromSelector(_cmd));
-    }else{
-        WindmillLogDebug(@"OSET-WindWill-竞价失败", @"%@", NSStringFromSelector(_cmd));
-    }
+    OSETToBidReportBidResult(self.rewardAd, result);
 }
 - (void)destory {
     [self removeRewardAd];
