@@ -97,6 +97,7 @@
     if (!_imageView) {
         NSArray *imageAry = self.expressDataAdRender.dataObject.imageList;
         _imageView = [[UIImageView alloc] init];
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
         if(imageAry.count > 0) {
             NSString *image = imageAry.firstObject[@"url"];
             NSURL *imgURL = [NSURL URLWithString:image];
